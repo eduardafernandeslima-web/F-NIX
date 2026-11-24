@@ -1,0 +1,87 @@
+import sqlite3
+
+BANCO = 'imobiliaria.db'
+
+
+def conectar():
+    return sqlite3.connect(BANCO)
+
+
+# ---------------- CRIAR TABELA ----------------
+def criar_tabela():
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS imoveis (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        tipo        TEXT    NOT NULL,
+        finalidade  TEXT    NOT NULL,
+        endereco    TEXT    NOT NULL,
+        cidade      TEXT    NOT NULL,
+        quartos     INTEGER NOT NULL,
+        area        REAL    NOT NULL,
+        preco       REAL    NOT NULL,
+        status      TEXT    NOT NULL DEFAULT 'Disponível'
+    )
+    ''')
+
+    conexao.commit()
+    conexao.close()
+
+
+# ---------------- CADASTRAR ----------------
+def cadastrar_imovel(tipo, finalidade, endereco, cidade,
+                     quartos, area, preco, status):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute('''
+    INSERT INTO imoveis
+        (tipo, finalidade, endereco, cidade, quartos, area, preco, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (tipo, finalidade, endereco, cidade, quartos, area, preco, status))
+
+    conexao.commit()
+    conexao.close()
+
+
+# ---------------- LISTAR ----------------
+def listar_imoveis():
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute('SELECT * FROM imoveis')
+    imoveis = cursor.fetchall()
+
+    conexao.close()
+    return imoveis
+
+
+# ---------------- ATUALIZAR ----------------
+def atualizar_imovel(id, tipo, finalidade, endereco, cidade,
+                     quartos, area, preco, status):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute('''
+    UPDATE imoveis
+    SET tipo = ?, finalidade = ?, endereco = ?, cidade = ?,
+        quartos = ?, area = ?, preco = ?, status = ?
+    WHERE id = ?
+    ''', (tipo, finalidade, endereco, cidade,
+          quartos, area, preco, status, id))
+
+    conexao.commit()
+    conexao.close()
+
+
+# ---------------- EXCLUIR ----------------
+def excluir_imovel(id):
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute('DELETE FROM imoveis WHERE id = ?', (id,))
+
+    conexao.commit()
+    conexao.close()
